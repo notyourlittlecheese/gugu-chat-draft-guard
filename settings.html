@@ -1,0 +1,83 @@
+<div id="gugu_chat_draft_guard_panel" class="gcdg-settings inline-drawer">
+    <div class="inline-drawer-toggle inline-drawer-header">
+        <b class="gcdg-title">咕咕助手 - 聊天草稿守护</b>
+        <div class="inline-drawer-icon fa-solid fa-circle-chevron-down down"></div>
+    </div>
+    <div class="inline-drawer-content">
+        <div class="gcdg-shell">
+            <section class="gcdg-card gcdg-topbar gcdg-panel-card">
+                <div class="gcdg-topline gcdg-panel-head">
+                    <div class="gcdg-panel-brand">
+                        <div class="gcdg-hero-title">聊天守护</div>
+                    </div>
+                    <div class="gcdg-panel-headside">
+                        <button type="button" class="menu_button gcdg-inline-button gcdg-topbar-button gcdg-about-trigger" data-open-about>关于</button>
+                        <div class="gcdg-count-badge">
+                            <span class="gcdg-count-label">草稿</span>
+                            <span class="gcdg-count-value" data-draft-count>0</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="gcdg-panel-layout">
+                    <div class="gcdg-panel-main">
+                        <div class="gcdg-control-grid gcdg-control-stack">
+                            <label class="gcdg-switch-tile" for="gcdg_enabled">
+                                <input id="gcdg_enabled" type="checkbox" />
+                                <span class="gcdg-switch-body">
+                                    <span class="gcdg-switch-title">本地草稿守护</span>
+                                </span>
+                            </label>
+                            <label class="gcdg-switch-tile" for="gcdg_suppress_official_chat_save_toast">
+                                <input id="gcdg_suppress_official_chat_save_toast" type="checkbox" />
+                                <span class="gcdg-switch-body">
+                                    <span class="gcdg-switch-title">隐藏官方报错</span>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="gcdg-panel-side">
+                        <div class="gcdg-owner-limit" data-owner-limit>
+                            <div class="gcdg-owner-limit-meta">
+                                <div class="gcdg-owner-limit-title">单个角色上限</div>
+                            </div>
+                            <div class="gcdg-owner-limit-controls">
+                                <input
+                                    id="gcdg_owner_limit"
+                                    class="text_pole gcdg-owner-limit-input"
+                                    type="number"
+                                    min="1"
+                                    inputmode="numeric"
+                                    placeholder="不限"
+                                />
+                                <button type="button" class="menu_button gcdg-inline-button gcdg-owner-limit-button" data-owner-limit-save>保存</button>
+                                <button type="button" class="menu_button gcdg-inline-button gcdg-owner-limit-button" data-owner-limit-clear>不限</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="gcdg-card gcdg-drafts-card">
+                <div class="gcdg-drafts-toolbar">
+                    <div class="gcdg-list-head">
+                        <div class="gcdg-list-brand">
+                            <div class="gcdg-section-title">本地草稿</div>
+                            <div class="gcdg-list-summary">
+                                <div class="gcdg-filter-caption" data-filter-caption></div>
+                                <div class="gcdg-filter-count" data-filter-count></div>
+                            </div>
+                        </div>
+                        <button id="gcdg_clear_all" class="menu_button gcdg-inline-button gcdg-inline-button-danger">清空</button>
+                    </div>
+                    <div class="gcdg-chip-row" data-category-controls></div>
+                </div>
+                <div class="gcdg-empty" data-empty-state>暂无草稿</div>
+                <div class="gcdg-draft-list" data-draft-list></div>
+                <div class="gcdg-draft-loadmore" data-draft-loadmore hidden>
+                    <div class="gcdg-draft-loadmore-meta" data-draft-loadmore-meta></div>
+                    <button type="button" class="menu_button gcdg-inline-button gcdg-draft-loadmore-button" data-draft-loadmore-button></button>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
