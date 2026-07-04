@@ -1152,47 +1152,6 @@ body .gcdg-preview-chat .mesIDDisplay {
         linear-gradient(90deg, color-mix(in srgb, #f1b57b 92%, white 8%), color-mix(in srgb, #cb7440 86%, #f1b57b 14%));
 }
 
-.gcdg-unsaved-banner {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    width: calc(100% - 12px);
-    margin: 0 0 10px;
-    color: color-mix(in srgb, #efc487 78%, var(--SmartThemeBodyColor, #f6eee3) 22%);
-}
-
-.gcdg-unsaved-banner::before,
-.gcdg-unsaved-banner::after {
-    content: '';
-    flex: 1 1 auto;
-    min-width: 18px;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, color-mix(in srgb, #d59a48 54%, transparent));
-}
-
-.gcdg-unsaved-banner::after {
-    background: linear-gradient(90deg, color-mix(in srgb, #d59a48 54%, transparent), transparent);
-}
-
-.gcdg-unsaved-banner-dot {
-    display: none;
-}
-
-.gcdg-unsaved-banner-text {
-    flex: 0 0 auto;
-    min-width: 0;
-    padding: 4px 10px;
-    border: 1px solid color-mix(in srgb, #d9a964 40%, var(--SmartThemeBorderColor, rgba(255, 255, 255, 0.16)) 60%);
-    border-radius: 999px;
-    background: color-mix(in srgb, #d9a964 12%, var(--SmartThemeBlurTintColor, rgba(20, 14, 10, 0.94)) 88%);
-    box-shadow: inset 0 1px 0 color-mix(in srgb, white 8%, transparent);
-    color: color-mix(in srgb, #ffe6bc 90%, var(--SmartThemeBodyColor, #f6eee3) 10%);
-    font: 700 10px/1 'Cascadia Code', 'Consolas', monospace;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-}
-
 .gcdg-unsaved-badge {
     display: inline-flex;
     align-items: center;
@@ -1211,41 +1170,6 @@ body .gcdg-preview-chat .mesIDDisplay {
     box-shadow:
         inset 0 1px 0 color-mix(in srgb, white 8%, transparent),
         0 0 0 1px color-mix(in srgb, black 8%, transparent);
-}
-
-.gcdg-unsaved-message .mes_block {
-    position: relative;
-    overflow: visible;
-    isolation: isolate;
-    box-shadow: 0 0 0 1px color-mix(in srgb, #d59a48 28%, transparent);
-}
-
-.gcdg-unsaved-message .mes_block::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background:
-        linear-gradient(180deg, color-mix(in srgb, #efc17a 8%, transparent), transparent 42%),
-        color-mix(in srgb, #d59a48 8%, transparent);
-    pointer-events: none;
-    z-index: -1;
-}
-
-.gcdg-unsaved-single .mes_block {
-    border-radius: 18px;
-}
-
-.gcdg-unsaved-first .mes_block {
-    border-radius: 18px 18px 12px 12px;
-}
-
-.gcdg-unsaved-middle .mes_block {
-    border-radius: 12px;
-}
-
-.gcdg-unsaved-last .mes_block {
-    border-radius: 12px 12px 18px 18px;
 }
 
 .gcdg-preview-chat .mes_buttons,
@@ -1541,23 +1465,6 @@ body .gcdg-preview-chat .mesIDDisplay {
 
     .gcdg-preview-action.menu_button {
         justify-content: center;
-    }
-
-    .gcdg-unsaved-banner {
-        width: calc(100% - 18px);
-        margin: 0 auto 8px;
-        gap: 6px;
-    }
-
-    .gcdg-unsaved-banner-text {
-        padding: 4px 9px;
-        font-size: 9px;
-        letter-spacing: 0.08em;
-    }
-
-    .gcdg-unsaved-banner::before,
-    .gcdg-unsaved-banner::after {
-        min-width: 10px;
     }
 
     .gcdg-unsaved-badge {

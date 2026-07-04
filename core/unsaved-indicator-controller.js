@@ -13,7 +13,6 @@ import { fetchTargetChat } from './recovery-target.js';
 import { createSaveObserver } from './save-observer.js';
 import {
     buildBaselineState,
-    buildGlobalStatusModel,
     cancelRetryTimer,
     createEmptyUnsavedState,
     createRetryState,
@@ -125,7 +124,7 @@ function renderState(runtime) {
             hasPendingDeletion: false,
             savedPrefixLength: getUnsavedStartIndex(runtime.state, runtime.context.chat.length, runtime.transaction),
         });
-        runtime.statusCard.render(buildGlobalStatusModel(runtime.context, runtime.state, runtime.retry, runtime.transaction, failed));
+        runtime.statusCard.hide();
         return;
     }
 
