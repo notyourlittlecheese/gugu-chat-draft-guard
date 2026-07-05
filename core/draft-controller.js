@@ -26,23 +26,13 @@ function sortByNewest(records) {
     return [...records].sort((left, right) => Number(right.updatedAt) - Number(left.updatedAt));
 }
 
-function sortByCompleteness(records) {
-    return [...records].sort((left, right) => {
-        const messageDiff = Number(right.messageCount ?? 0) - Number(left.messageCount ?? 0);
-        if (messageDiff !== 0) {
-            return messageDiff;
-        }
-
-        return Number(right.updatedAt) - Number(left.updatedAt);
-    });
-}
-
 export function createDraftController({ getSettings, panel, store }) {
     const context = SillyTavern.getContext();
     const listeners = [];
     let pendingRecord = null;
     let saveTimer = null;
     let lastPromptToken = '';
+    let saveQueue = Promise.resolve();
 
     function settings() {
         return { ...DEFAULT_SETTINGS, ...getSettings() };
@@ -117,7 +107,7 @@ export function createDraftController({ getSettings, panel, store }) {
             : [];
 
         if (!exact.exists) {
-            const best = sortByCompleteness(versions)[0] ?? record;
+            const best = newestVersions[0] ?? record;
             return {
                 mode: 'create',
                 record: best,
@@ -190,6 +180,7 @@ export function createDraftController({ getSettings, panel, store }) {
         }
 
         if (!pendingRecord) {
+            await saveQueue;
             return;
         }
 
@@ -199,8 +190,12 @@ export function createDraftController({ getSettings, panel, store }) {
             return;
         }
 
-        await store.save(record);
-        await refreshDrafts();
+        const operation = saveQueue.then(async () => {
+            await store.save(record);
+            await refreshDrafts();
+        });
+        saveQueue = operation.catch(() => {});
+        await operation;
     }
 
     function scheduleSnapshot() {
@@ -235,6 +230,24 @@ export function createDraftController({ getSettings, panel, store }) {
 
         pendingRecord = record;
         void flushPending();
+    }
+
+    async function saveCurrentDraft() {
+        if (!settings().enabled) {
+            toastr.warning('请先启用本地草稿守护。', UI_TITLE);
+            return false;
+        }
+
+        const record = getCurrentDraftRecord();
+        if (!record || record.messageCount === 0) {
+            toastr.info('当前聊天没有可备份的消息。', UI_TITLE);
+            return false;
+        }
+
+        pendingRecord = record;
+        await flushPending();
+        toastr.success('当前聊天已立即备份到本地草稿。', UI_TITLE);
+        return true;
     }
 
     async function archiveCurrentIfSynced() {
@@ -494,6 +507,9 @@ export function createDraftController({ getSettings, panel, store }) {
             panel.setActions({
                 clearAllDrafts: () => {
                     void clearAllDrafts();
+                },
+                saveCurrentDraft: () => {
+                    void saveCurrentDraft();
                 },
                 previewDraft: (draftKey) => {
                     void store.getLatest(draftKey).then((record) => record && previewDraft(record));

@@ -44,6 +44,7 @@ function bindContextEvent(context, listeners, eventName, handler) {
 function createTransactionState() {
     return {
         awaitUntil: 0,
+        dirtyIndex: null,
         mode: DEFAULT_MODE,
         revision: 0,
         settledChatLength: 0,
@@ -69,6 +70,7 @@ function resetTransaction(transaction, { keepSuppress = false } = {}) {
 
     cancelVerifyTimer(transaction);
     transaction.awaitUntil = 0;
+    transaction.dirtyIndex = null;
     transaction.mode = DEFAULT_MODE;
     transaction.revision += 1;
     transaction.settledChatLength = settledChatLength;
@@ -83,9 +85,10 @@ function settleTransaction(transaction, chatLength) {
     transaction.suppressUntil = Date.now() + SAVE_NOISE_SUPPRESS_MS;
 }
 
-function startTransaction(transaction, generating, mode = DEFAULT_MODE) {
+function startTransaction(transaction, generating, mode = DEFAULT_MODE, dirtyIndex = null) {
     cancelVerifyTimer(transaction);
     transaction.awaitUntil = Date.now() + ABNORMAL_SAVE_GRACE_MS;
+    transaction.dirtyIndex = dirtyIndex;
     transaction.mode = mode;
     transaction.revision += 1;
     transaction.status = generating ? 'generating' : 'awaiting-save';
@@ -121,7 +124,8 @@ function renderState(runtime) {
     if (hasVisibleFailureContent(runtime.context.chat.length, runtime.state, runtime.retry, runtime.transaction, failed)) {
         applyUnsavedMarkers({
             chatLength: runtime.context.chat.length,
-            hasPendingDeletion: false,
+            hasPendingDeletion: runtime.state.hasPendingDeletion,
+            messageIds: runtime.state.unsavedMessageIndices,
             savedPrefixLength: getUnsavedStartIndex(runtime.state, runtime.context.chat.length, runtime.transaction),
         });
         runtime.statusCard.hide();
@@ -344,17 +348,17 @@ function handleDirtyMutation(runtime, eventName, dirtyIndex, sourceType) {
 
     const startMode = resolveStartMode(eventName, sourceType);
     if (startMode && runtime.transaction.status === 'idle') {
-        startTransaction(runtime.transaction, runtime.state.isGenerating, startMode);
+        startTransaction(runtime.transaction, runtime.state.isGenerating, startMode, dirtyIndex);
         resetRetryState(runtime.retry);
     } else if ((eventName === 'MESSAGE_UPDATED' || startMode) && runtime.transaction.status !== 'idle') {
         runtime.transaction.awaitUntil = Date.now() + ABNORMAL_SAVE_GRACE_MS;
     }
 
-    if (dirtyIndex !== null && dirtyIndex < runtime.state.savedPrefixLength) {
-        runtime.state = {
-            ...runtime.state,
-            savedPrefixLength: dirtyIndex,
-        };
+    if (
+        dirtyIndex !== null
+        && (runtime.transaction.dirtyIndex === null || dirtyIndex < runtime.transaction.dirtyIndex)
+    ) {
+        runtime.transaction.dirtyIndex = dirtyIndex;
     }
 
     runtime.scheduler.schedule();
@@ -369,7 +373,12 @@ function handleRuntimeTick(runtime) {
     runtime.lastGenerating = runtime.state.isGenerating;
 
     if (!wasGenerating && runtime.state.isGenerating && runtime.transaction.status === 'idle') {
-        startTransaction(runtime.transaction, true, IDLE_GENERATING_MODE);
+        startTransaction(
+            runtime.transaction,
+            true,
+            IDLE_GENERATING_MODE,
+            Math.max(0, runtime.context.chat.length - 1),
+        );
         resetRetryState(runtime.retry);
     }
 

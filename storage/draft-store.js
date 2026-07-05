@@ -1,28 +1,9 @@
 import { STORAGE_KEY, STORAGE_NAME } from '../constants.js';
-import { areMessagesEquivalent } from '../core/message-signature.js';
 
 const DEFAULT_DRAFT_STATUS = 'unsynced';
 
 function sortSnapshots(records) {
     return [...records].sort((left, right) => Number(right.updatedAt) - Number(left.updatedAt));
-}
-
-function isStrictPrefixSnapshot(shorter, longer) {
-    if (!shorter || !longer) {
-        return false;
-    }
-
-    const shorterCount = Number(shorter.messageCount ?? 0);
-    const longerCount = Number(longer.messageCount ?? 0);
-    if (shorterCount >= longerCount) {
-        return false;
-    }
-
-    if (!Array.isArray(shorter.chatData) || !Array.isArray(longer.chatData)) {
-        return false;
-    }
-
-    return shorter.chatData.every((message, index) => areMessagesEquivalent(message, longer.chatData[index]));
 }
 
 function normalizeStatus(value) {
@@ -77,11 +58,7 @@ function filterByStatuses(records, statuses) {
 }
 
 function getPreferredSnapshot(records) {
-    const snapshots = sortSnapshots(records).map((record) => hydrateRecord(record));
-
-    return snapshots.find((candidate) =>
-        !snapshots.some((other) => isStrictPrefixSnapshot(candidate, other))
-    ) ?? snapshots.at(0) ?? null;
+    return sortSnapshots(records).map((record) => hydrateRecord(record)).at(0) ?? null;
 }
 
 function getDisplaySnapshot(records, statuses) {

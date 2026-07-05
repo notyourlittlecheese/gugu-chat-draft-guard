@@ -13,6 +13,18 @@ function getCommonPrefixLength(localMessages, remoteMessages) {
     return index;
 }
 
+function getDifferentMessageIndices(localMessages, remoteMessages) {
+    const indices = [];
+
+    localMessages.forEach((message, index) => {
+        if (index >= remoteMessages.length || !areMessagesEquivalent(message, remoteMessages[index])) {
+            indices.push(index);
+        }
+    });
+
+    return indices;
+}
+
 export function createEmptyUnsavedState() {
     return {
         draftKey: '',
@@ -22,6 +34,7 @@ export function createEmptyUnsavedState() {
         isSaving: false,
         remoteMessageCount: 0,
         savedPrefixLength: 0,
+        unsavedMessageIndices: [],
     };
 }
 
@@ -49,6 +62,7 @@ export function buildBaselineState({ draftKey, isGenerating, isSaving, localMess
         isSaving,
         remoteMessageCount: remoteMessages.length,
         savedPrefixLength: getCommonPrefixLength(localMessages, remoteMessages),
+        unsavedMessageIndices: getDifferentMessageIndices(localMessages, remoteMessages),
     };
 }
 
@@ -62,7 +76,12 @@ export function patchRuntimeFlags(state, { isGenerating, isSaving }) {
 
 export function getUnsavedStartIndex(state, chatLength, transaction) {
     if (isReplaceMode(transaction)) {
-        return Math.min(state.savedPrefixLength, chatLength);
+        const dirtyIndex = Number(transaction?.dirtyIndex);
+        if (Number.isInteger(dirtyIndex) && dirtyIndex >= 0) {
+            return Math.min(dirtyIndex, chatLength);
+        }
+
+        return Math.min(Math.max(0, chatLength - 1), chatLength);
     }
 
     return Math.min(state.remoteMessageCount, chatLength);
@@ -73,11 +92,8 @@ export function getUnsavedCount(chatLength, state, transaction) {
 }
 
 export function hasAbnormalCandidateContent(chatLength, state, transaction) {
-    if (isReplaceMode(transaction)) {
-        return state.savedPrefixLength < chatLength;
-    }
-
-    return getUnsavedCount(chatLength, state, transaction) > 0;
+    return state.hasPendingDeletion
+        || state.unsavedMessageIndices.some((index) => index >= 0 && index < chatLength);
 }
 
 export function hasVisibleFailureContent(chatLength, state, retry, transaction, failed) {

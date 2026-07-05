@@ -15,11 +15,15 @@ function getBadgeHost(messageElement) {
         ?? messageElement.querySelector('.mes_block');
 }
 
-function getUnsavedMessages(chatRoot, unsavedStart, chatLength) {
+function getUnsavedMessages(chatRoot, unsavedStart, chatLength, messageIds) {
+    const explicitIds = Array.isArray(messageIds) ? new Set(messageIds) : null;
+
     return Array.from(chatRoot.querySelectorAll('.mes[mesid]'))
         .filter((element) => {
             const messageId = Number(element.getAttribute('mesid'));
-            return Number.isInteger(messageId) && messageId >= unsavedStart && messageId < chatLength;
+            return Number.isInteger(messageId)
+                && messageId < chatLength
+                && (explicitIds ? explicitIds.has(messageId) : messageId >= unsavedStart);
         });
 }
 
@@ -44,6 +48,7 @@ export function clearUnsavedMarkers() {
 export function applyUnsavedMarkers({
     chatLength,
     hasPendingDeletion,
+    messageIds,
     savedPrefixLength,
 }) {
     const chatRoot = getChatRoot();
@@ -55,11 +60,12 @@ export function applyUnsavedMarkers({
 
     const unsavedStart = Math.min(savedPrefixLength, chatLength);
     const unsavedCount = Math.max(0, chatLength - unsavedStart);
-    if (unsavedCount === 0 && !hasPendingDeletion) {
+    const hasExplicitMessages = Array.isArray(messageIds) && messageIds.length > 0;
+    if (!hasExplicitMessages && unsavedCount === 0 && !hasPendingDeletion) {
         return;
     }
 
-    const unsavedMessages = getUnsavedMessages(chatRoot, unsavedStart, chatLength);
+    const unsavedMessages = getUnsavedMessages(chatRoot, unsavedStart, chatLength, messageIds);
     unsavedMessages.forEach((messageElement) => {
         const host = getBadgeHost(messageElement);
 

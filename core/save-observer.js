@@ -39,11 +39,11 @@ function matchSaveRequest(identity, url, payload) {
     }
 
     if (url.includes('/api/chats/group/save')) {
-        return parsed.isGroup && String(payload?.id ?? '') === String(parsed.chatId);
+        return parsed.isGroup && (!payload || String(payload.id ?? '') === String(parsed.chatId));
     }
 
     if (url.includes('/api/chats/save')) {
-        return !parsed.isGroup && String(payload?.file_name ?? '') === String(parsed.chatId);
+        return !parsed.isGroup && (!payload || String(payload.file_name ?? '') === String(parsed.chatId));
     }
 
     return false;

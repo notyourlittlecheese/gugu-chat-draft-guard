@@ -95,7 +95,7 @@ export function getRelationLabel(relation) {
     }
 
     if (relation === 'diverged') {
-        return '已分叉';
+        return '内容版本不同';
     }
 
     if (relation === 'other-chat') {

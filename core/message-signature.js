@@ -1,9 +1,3 @@
-const ROOT_MESSAGE_KEYS = Object.freeze([
-    'name',
-    'force_avatar',
-    'original_avatar',
-]);
-
 const EXTRA_MESSAGE_KEYS = Object.freeze([
     'type',
     'append_title',
@@ -61,11 +55,11 @@ function createComparableExtra(extra) {
 }
 
 function getComparableText(message) {
-    return message?.extra?.display_text || message?.mes || '';
+    return message?.mes || message?.extra?.display_text || '';
 }
 
 function getComparableReasoning(message) {
-    return message?.extra?.reasoning_display_text ?? message?.extra?.reasoning ?? '';
+    return message?.extra?.reasoning ?? message?.extra?.reasoning_display_text ?? '';
 }
 
 function getComparableTitle(message) {
@@ -78,7 +72,6 @@ export function createComparableMessage(message) {
     }
 
     const comparable = {};
-    ROOT_MESSAGE_KEYS.forEach((key) => includeValue(comparable, key, message[key]));
     includeValue(comparable, 'text', getComparableText(message));
     includeValue(comparable, 'reasoning', getComparableReasoning(message));
     includeValue(comparable, 'bias', message?.extra?.bias);

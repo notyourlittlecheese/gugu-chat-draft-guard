@@ -31,7 +31,7 @@ function createFilterOptions(hasCurrentChat) {
             { id: 'exact', label: '一致' },
             { id: 'ahead', label: '高于当前' },
             { id: 'behind', label: '低于当前' },
-            { id: 'diverged', label: '已分叉' },
+            { id: 'diverged', label: '内容不同' },
             { id: 'other-chat', label: '其他聊天' },
             { id: FILTER_OTHER_OWNER, label: '其他角色' },
         ];
@@ -203,6 +203,7 @@ export function createPanel({ getSettings, onOwnerLimitChange, onSettingsChange 
     let root = null;
     let actions = {
         clearAllDrafts: () => {},
+        saveCurrentDraft: () => {},
         previewDraft: () => {},
         recoverDraft: () => {},
         exportDraft: () => {},
@@ -302,10 +303,11 @@ export function createPanel({ getSettings, onOwnerLimitChange, onSettingsChange 
         renderList();
     }
 
-    function saveOwnerLimit() {
+    async function saveOwnerLimit() {
         const rawValue = String(root.find('#gcdg_owner_limit').val() ?? '').trim();
         if (!rawValue) {
-            void onOwnerLimitChange({ limit: null });
+            await onOwnerLimitChange({ limit: null });
+            toastr.success('草稿保留上限已设为不限。', UI_TITLE);
             return;
         }
 
@@ -316,7 +318,8 @@ export function createPanel({ getSettings, onOwnerLimitChange, onSettingsChange 
             return;
         }
 
-        void onOwnerLimitChange({ limit: value });
+        await onOwnerLimitChange({ limit: value });
+        toastr.success(`每个角色最多保留 ${value} 份草稿。`, UI_TITLE);
     }
 
     function bindSettings() {
@@ -327,10 +330,14 @@ export function createPanel({ getSettings, onOwnerLimitChange, onSettingsChange 
         root.find('#gcdg_suppress_official_chat_save_toast').on('change', function () {
             onSettingsChange({ suppressOfficialChatSaveToast: $(this).prop('checked') });
         });
-        root.find('[data-owner-limit-save]').on('click', saveOwnerLimit);
+        root.find('[data-owner-limit-save]').on('click', () => {
+            void saveOwnerLimit();
+        });
         root.find('[data-owner-limit-clear]').on('click', () => {
             root.find('#gcdg_owner_limit').val('');
-            void onOwnerLimitChange({ limit: null });
+            void onOwnerLimitChange({ limit: null }).then(() => {
+                toastr.success('草稿保留上限已设为不限。', UI_TITLE);
+            });
         });
         root.find('#gcdg_owner_limit').on('keydown', function (event) {
             if (event.key !== 'Enter') {
@@ -342,6 +349,7 @@ export function createPanel({ getSettings, onOwnerLimitChange, onSettingsChange 
         });
 
         root.find('#gcdg_clear_all').on('click', () => actions.clearAllDrafts());
+        root.find('[data-save-current-draft]').on('click', () => actions.saveCurrentDraft());
         root.find('[data-open-about]').on('click', () => actions.openAbout());
         root.on('click', '[data-filter]', function () {
             const next = $(this).attr('data-filter');
